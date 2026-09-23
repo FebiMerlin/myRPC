@@ -1,0 +1,53 @@
+# .gitlab-ci.yml -- конвейер для стендов на базе GitLab.
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+default:
+  image: debian:bullseye
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq build-essential dpkg-dev
+
+Сборка:
+  stage: build
+  script:
+    - make all
+  artifacts:
+    paths:
+      - client/myRPC-client
+      - server/myRPC-server
+    expire_in: 1 day
+
+Модульные тесты:
+  stage: test
+  script:
+    - make -C tests test_proto
+    - ./tests/test_proto
+
+Интеграционный тест:
+  stage: test
+  script:
+    - make all
+    - ./tests/run_integration.sh
+
+Пакеты:
+  stage: package
+  script:
+    - make deb
+  artifacts:
+    paths:
+      - build/*.deb
+    expire_in: 1 week
+
+Выкладка на стенд:
+  stage: deploy
+  only:
+    - master
+  when: manual
+  script:
+    - echo "Копирование пакетов в репозиторий стенда Astra Linux"
+    - scp build/*.deb "$ASTRA_REPO_USER@$ASTRA_REPO_HOST:$ASTRA_REPO_PATH/"
+    - ssh "$ASTRA_REPO_USER@$ASTRA_REPO_HOST" "cd $ASTRA_REPO_PATH && dpkg-scanpackages . /dev/null > Packages && gzip -9c Packages > Packages.gz"
