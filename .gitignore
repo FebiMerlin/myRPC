@@ -1,0 +1,38 @@
+# Объектные файлы и результаты сборки
+*.o
+*.a
+*.so
+*.so.*
+*.d
+
+# Исполняемые файлы проекта
+myRPC-client
+myRPC-server
+tests/test_proto
+
+# Каталоги сборки и пакеты
+build/
+*.deb
+*.dsc
+*.tar.gz
+*.buildinfo
+*.changes
+
+# Временные файлы
+*.log
+*.tmp
+*~
+*.swp
+.DS_Store
+
+# Файлы отладчика и анализаторов
+core
+core.*
+vgcore.*
+*.gcda
+*.gcno
+*.gcov
+
+# Каталоги сред разработки
+.vscode/
+.idea/
