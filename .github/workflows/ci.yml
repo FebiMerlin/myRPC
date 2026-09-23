@@ -1,0 +1,68 @@
+# ci.yml -- сборка, тесты и пакеты myRPC.
+name: myRPC CI
+
+on:
+  push:
+    branches: [ master, develop, 'feature/**', 'release/**' ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build-and-test:
+    name: Сборка и тесты
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить исходные тексты
+        uses: actions/checkout@v4
+
+      - name: Установить инструменты сборки
+        run: sudo apt-get update && sudo apt-get install -y build-essential dpkg-dev
+
+      - name: Собрать программы
+        run: make all
+
+      - name: Модульные тесты
+        run: make -C tests test_proto && ./tests/test_proto
+
+      - name: Интеграционный тест
+        run: ./tests/run_integration.sh
+
+      - name: Собрать deb-пакеты
+        run: make deb
+
+      - name: Проверить содержимое пакетов
+        run: |
+          for package in build/*.deb; do
+            echo "=== $package"
+            dpkg-deb --info "$package"
+            dpkg-deb --contents "$package"
+          done
+
+      - name: Сохранить пакеты как артефакты
+        uses: actions/upload-artifact@v4
+        with:
+          name: myrpc-packages
+          path: build/*.deb
+
+  install-check:
+    name: Проверка установки пакетов
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установить инструменты сборки
+        run: sudo apt-get update && sudo apt-get install -y build-essential dpkg-dev
+
+      - name: Собрать пакеты
+        run: make deb
+
+      - name: Установить и проверить
+        run: |
+          sudo dpkg -i build/myrpc-client_*.deb build/myrpc-server_*.deb
+          test -x /usr/bin/myRPC-client
+          test -x /usr/sbin/myRPC-server
+          test -f /etc/myRPC/myRPC.conf
+          test -f /etc/myRPC/users.conf
+          myRPC-client --help
+          sudo myRPC-server --help
