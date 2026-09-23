@@ -1,0 +1,14 @@
+#!/bin/sh
+# prerm -- stop the service before the package is removed.
+set -e
+
+case "$1" in
+  remove|upgrade|deconfigure)
+    if [ -d /run/systemd/system ]; then
+      systemctl stop myRPC-server.service || true
+      systemctl disable myRPC-server.service || true
+    fi
+    ;;
+esac
+
+exit 0

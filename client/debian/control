@@ -1,0 +1,11 @@
+Package: myrpc-client
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.17)
+Maintainer: myRPC project <myrpc@example.org>
+Description: myRPC remote command execution client
+ Console utility that sends a bash command together with the name of the
+ current user to myRPC-server and prints the answer.  Both stream and
+ datagram sockets are supported.

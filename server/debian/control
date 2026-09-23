@@ -1,0 +1,14 @@
+Package: myrpc-server
+Version: 1.0.0
+Section: admin
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.17)
+Maintainer: myRPC project <myrpc@example.org>
+Description: myRPC remote command execution server
+ Daemon that receives bash commands over a stream or datagram socket,
+ checks the sender against the list of the allowed users and executes
+ the command, returning its output to myRPC-client.
+ .
+ Every connection is served in a separate process.  The configuration is
+ read from /etc/myRPC/myRPC.conf and reloaded on SIGHUP.
