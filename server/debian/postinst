@@ -1,0 +1,15 @@
+#!/bin/sh
+# postinst -- register and start the service after the installation.
+set -e
+
+case "$1" in
+  configure)
+    if [ -d /run/systemd/system ]; then
+      systemctl daemon-reload || true
+      systemctl enable myRPC-server.service || true
+      systemctl restart myRPC-server.service || true
+    fi
+    ;;
+esac
+
+exit 0
