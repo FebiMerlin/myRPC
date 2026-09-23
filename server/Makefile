@@ -74,7 +74,10 @@ deb: $(PROGRAM)
 	sed -i 's/^Version:.*/Version: $(VERSION)/' $(DEB_DIR)/DEBIAN/control
 	sed -i 's/^Architecture:.*/Architecture: $(ARCH)/' $(DEB_DIR)/DEBIAN/control
 	$(MAKE) install DESTDIR=$(CURDIR)/$(DEB_DIR)
-	dpkg-deb --build --root-owner-group $(DEB_DIR) $(BUILD_DIR)/$(DEB_FILE)
+	# --root-owner-group есть только в dpkg 1.19 и новее; на более старых
+	# системах (например, Astra Linux 2.12) используется fakeroot, а при
+	# его отсутствии -- обычная сборка от текущего пользователя.
+	dpkg-deb --build --root-owner-group $(DEB_DIR) $(BUILD_DIR)/$(DEB_FILE) 2>/dev/null 	  || fakeroot dpkg-deb --build $(DEB_DIR) $(BUILD_DIR)/$(DEB_FILE) 2>/dev/null 	  || dpkg-deb --build $(DEB_DIR) $(BUILD_DIR)/$(DEB_FILE)
 	@echo "package built: $(BUILD_DIR)/$(DEB_FILE)"
 
 clean:
