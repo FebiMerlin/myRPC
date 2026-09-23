@@ -1,0 +1,16 @@
+[Unit]
+Description=myRPC remote command execution server
+Documentation=file:/usr/share/doc/myrpc-server/README.md
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/myRPC-server.pid
+ExecStart=/usr/sbin/myRPC-server
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=control-group
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
